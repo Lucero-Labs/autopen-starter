@@ -1,0 +1,10 @@
+project_id = "autopen-starter"
+
+# Las dos funciones exigen un JWT de usuario válido: se ejecutan como quien las
+# llama y las políticas RLS deciden qué filas y archivos puede tocar.
+
+[functions.create-instrument]
+verify_jwt = true
+
+[functions.refresh-instrument]
+verify_jwt = true
