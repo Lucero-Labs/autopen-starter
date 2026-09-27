@@ -14,6 +14,9 @@ or install its SDK.
   is a backend secret: use it from server code only, never from a browser, a
   URL or a log. A wrong or missing key is `401 { "error": "unauthorized" }`.
 - Bodies and responses are JSON. Files travel as base64.
+- The contract, field by field, is `GET /openapi.json` on the service, no key
+  needed. The shapes are generated from the code, so they are never behind.
+  This page is the part a spec cannot say.
 - Routes match exactly. A `GET` on a `POST` route, or a trailing slash, is
   `404 { "error": "no such route" }`.
 
@@ -26,15 +29,7 @@ their identity on camera.
 ```
 POST /api/eligibility
 { "reference": "lease/2026-0042", "email": "firmante@example.com" }
-→ 200 {
-    "decision": "READY_FOR_SIGNING" | "ONBOARDING_REQUIRED" | "CERTIFICATE_PREPARING" | "RETRY_LATER",
-    "journey": "signing" | "onboarding-and-signing",   // absent when none is recommended
-    "nextAction": "CREATE_SESSION" | "RETRY" | "CONTACT_LAKAUT",
-    "retryAfterSeconds": 120,                           // when the authority gives one
-    "checkedAt": "2026-09-27T14:00:00.000Z",
-    "validUntil": "2026-09-27T14:00:30.000Z",
-    "correlationId": "…"
-  }
+→ 200 { "decision": "READY_FOR_SIGNING", "journey": "signing", … }
 ```
 
 | `decision` | What it means for you |
@@ -68,7 +63,8 @@ POST /api/instruments
 
 `reference` is your own id for the document; a UUID from your database is
 fine. `phone` is needed when the signer has never signed with the authority
-before, so send it. The PDF must be a real PDF and at most 20 MB.
+before, so send it. The PDF must be a real PDF and at most 21 MiB (the
+authority's own figure is 20 MB).
 
 An instrument's identity is its reference, its bytes and its signer:
 
